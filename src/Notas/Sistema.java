@@ -107,7 +107,7 @@ public class Sistema {
             System.out.println("Turmas cadastradas:");
 
             for (Turma t : this.turmas) {
-                System.out.println("* " + t); // Exibe informações da turma
+                System.out.println("* " + t.getNome()); // Exibe informações da turma
             }
 
             System.out.println(); // linha em branco entre listagem e médias

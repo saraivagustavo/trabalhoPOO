@@ -31,6 +31,10 @@ public class Turma {
         }
     }
 
+    public String getNome() {
+        return this.nome;
+    }
+
     //Método para calcular a média da turma
     public void medias() {
         System.out.println("Médias da Turma " + this.nome + "(" + this.ano + "/" + this.semestre + "):");
