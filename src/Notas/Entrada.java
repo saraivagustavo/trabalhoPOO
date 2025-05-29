@@ -2,6 +2,7 @@ package Notas;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
@@ -9,6 +10,7 @@ import java.util.Scanner;
  * @author Hilario Seibel Junior, Gustavo Saraiva Mariano e Pedro Henrique Albani Nunes
  */
 public class Entrada {
+    private int contAluno = 0; // Contador de alunos
     public Scanner input;
 
     /**
@@ -35,11 +37,23 @@ public class Entrada {
      * @return Uma String contendo a linha que foi lida
      */
     private String lerLinha(String msg) {
-        System.out.print(msg);
-        String linha = this.input.nextLine();
+        try {
+            System.out.print(msg);
+            String linha = this.input.nextLine();
 
-        while (linha.charAt(0) == '#') linha = this.input.nextLine();
-        return linha;
+            while (linha.charAt(0) == '#') linha = this.input.nextLine();
+            return linha;
+        } catch(InputMismatchException e){
+            System.out.println("Input errado! Tente novamente.");
+            return lerLinha(msg); // Chama novamente para tentar ler a linha
+        } catch(NumberFormatException e){
+            System.out.println("Formato inválido! Tente novamente.");
+            return lerLinha(msg); // Chama novamente para tentar ler a linha
+        } catch(StringIndexOutOfBoundsException e){
+            System.out.println("Entrada vazia! Tente novamente.");
+            return lerLinha(msg); // Chama novamente para tentar ler a linha
+        }
+
     }
 
     /**
@@ -48,8 +62,13 @@ public class Entrada {
      * @return O número digitado pelo usuário convertido para int
      */
     private int lerInteiro(String msg) {
-        String linha = this.lerLinha(msg);
-        return Integer.parseInt(linha);
+        try {
+            String linha = this.lerLinha(msg);
+            return Integer.parseInt(linha);
+        } catch (NumberFormatException e) {
+            System.out.println("Formato inválido! Tente novamente.");
+            return lerInteiro(msg); // Chama novamente para tentar ler o inteiro
+        }
     }
 
     /**
@@ -58,8 +77,14 @@ public class Entrada {
      * @return O número digitado pelo usuário convertido para double
      */
     private double lerDouble(String msg) {
-        String linha = this.lerLinha(msg);
-        return Double.parseDouble(linha);
+        try {
+            String linha = this.lerLinha(msg);
+            return Double.parseDouble(linha);
+        } catch (NumberFormatException e) {
+            System.out.println("Formato inválido! Tente novamente.");
+            return lerDouble(msg); // Chama novamente para tentar ler o double
+
+        }
     }
 
     // *******************************************************
@@ -103,6 +128,10 @@ public class Entrada {
         String nome = this.lerLinha("Digite o nome do professor: ");
         String cpf = this.lerLinha("Digite o cpf do professor: ");
         double salario = this.lerDouble("Digite o salário do professor: R$");
+        if(salario < 0) {
+            System.out.println("Salário inválido. Deve ser um valor positivo.");
+            salario = this.lerDouble("Digite o salário do professor: R$");
+        }
 
         if (s.encontrarProfessor(cpf) == null) { // Garantindo que o CPF não esteja duplicado.
             Professor p = new Professor(nome, cpf, salario);
@@ -122,6 +151,7 @@ public class Entrada {
         if (s.encontrarAluno(matricula) == null) { // Garantindo que a matrícula não esteja duplicada.
             Aluno a = new Aluno(nome, cpf, matricula);
             s.novoAluno(a);
+            contAluno++;
         } else {
             System.out.println("Erro: Matrícula duplicada. Aluno não adicionado.");
         }
@@ -163,17 +193,36 @@ public class Entrada {
     }
 
     public Aluno[] lerAlunos(Sistema s) {
-        int qtd = this.lerInteiro("Digite a quantidade de alunos na disciplina: ");
-        Aluno[] alunos = new Aluno[qtd];
+        s.listarAlunos(); // Lista todos os alunos disponíveis no sistema
 
+        int qtd;
+        boolean inputValido = false;
+        Aluno[] alunos = null; // Inicializa alunos como null
+
+        // Loop para garantir que a quantidade de alunos na disciplina seja válida
+        do {
+            qtd = this.lerInteiro("Digite a quantidade de alunos na disciplina: ");
+
+            // Verifica se a quantidade digitada é menor ou igual à quantidade total de alunos no sistema
+            if (qtd >= 0 && qtd <= contAluno) {
+                alunos = new Aluno[qtd];
+                inputValido = true;
+            } else {
+                System.out.println("Quantidade de alunos inválida. Máximo permitido: " + contAluno + ". Por favor, tente novamente.");
+                // O loop continuará até que uma quantidade válida seja digitada
+            }
+        } while (!inputValido);
+
+        // Loop para preencher o array de alunos com base nas matrículas
         for (int i = 0; i < qtd; i++) {
-            String matricula = this.lerLinha("Digite a matrícula do aluno: ");
+            String matricula = this.lerLinha("Digite a matrícula do aluno para a posição " + (i + 1) + ": ");
             Aluno a = s.encontrarAluno(matricula);
+
             if (a != null) {
                 alunos[i] = a;
             } else {
-                System.out.println("Aluno não encontrado.");
-                i--; // tentar novamente
+                System.out.println("Aluno com matrícula '" + matricula + "' não encontrado. Por favor, digite uma matrícula válida.");
+                i--; // Decrementa 'i' para tentar novamente a mesma posição
             }
         }
 
@@ -239,8 +288,34 @@ public class Entrada {
         int ano = this.lerInteiro("Digite o ano do trabalho: ");
         Data data = new Data(dia, mes, ano);
         double valor = this.lerDouble("Digite o valor máximo desta avaliação: ");
+        try {
+            if (valor < 0) {
+                throw new IllegalArgumentException("Valor deve ser um número positivo.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            valor = this.lerDouble("Digite o valor máximo desta avaliação: ");
+        }
+
         int nIntegrantes = this.lerInteiro("Digite o número máximo de integrantes: ");
+        try {
+            if (nIntegrantes <= 0) {
+                throw new IllegalArgumentException("Número de integrantes deve ser maior que zero.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            nIntegrantes = this.lerInteiro("Digite o número máximo de integrantes: ");
+        }
+
         int nGrupos = this.lerInteiro("Digite o número de grupos: ");
+        try {
+            if (nGrupos <= 0) {
+                throw new IllegalArgumentException("Número de grupos deve ser maior que zero.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            nGrupos = this.lerInteiro("Digite o número de grupos: ");
+        }
 
         Trabalho t = new Trabalho(nome, data, valor, nIntegrantes);
 

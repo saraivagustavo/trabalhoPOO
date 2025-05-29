@@ -1,3 +1,4 @@
+// Main.java
 package Notas;
 
 /**
@@ -6,10 +7,8 @@ package Notas;
  */
 public class Main {
     public static void main(String[] args) {
-        // Cria a entrada
+        // Cria a entrada e o sistema
         Entrada io = new Entrada();
-
-        // Cria o sistema para armazenar professores, alunos e turmas
         Sistema s = new Sistema();
 
         // Exibe o menu até que o usuário escolha a opção 0 (Sair)
@@ -18,24 +17,33 @@ public class Main {
         while (op != 0) {
             switch (op) {
                 case 1:
-                    io.cadProf(s); // Cadastra um novo professor
+                    io.cadProf(s);
                     break;
                 case 2:
-                    io.cadAluno(s); // Cadastra um novo aluno
+                    io.cadAluno(s);
                     break;
                 case 3:
-                    io.cadTurma(s); // Cadastra uma nova turma
+                    io.cadTurma(s);
                     break;
                 case 4:
-                    s.listarTurmas(); // Lista todas as turmas cadastradas
+                    s.listarTurmas();
                     break;
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
+                    break;
             }
 
             // Mostra o menu novamente
             op = io.menu();
         }
+
+        // Antes de encerrar, pode listar todos os dados cadastrados (opcional)
+        System.out.println("\nResumo final dos cadastros:");
+        s.listarProfs();
+        System.out.println("\n");
+        s.listarAlunos();
+        System.out.println("\n");
+        s.listarTurmas();
 
         // Fecha o scanner
         io.input.close();
