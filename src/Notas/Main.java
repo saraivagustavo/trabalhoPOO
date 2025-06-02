@@ -12,43 +12,39 @@ public class Main {
         Sistema s = new Sistema();
 
         // Exibe o menu até que o usuário escolha a opção 0 (Sair)
-        int op = io.menu();
-
-        while (op != 0) {
-            switch (op) {
-                case 1:
-                    io.cadProf(s);
-                    break;
-                case 2:
-                    io.cadAluno(s);
-                    break;
-                case 3:
-                    io.cadTurma(s);
-                    break;
-                case 4:
-                    s.listarTurmas();
-                    break;
-                default:
-                    System.out.println("Opção inválida. Tente novamente.");
-                    break;
+        int op = -1; // Inicializa com um valor que não seja 0
+        try {
+            while (op != 0) {
+                op = io.menu(); // Chama o menu
+                switch (op) {
+                    case 1:
+                        io.cadProf(s);
+                        break;
+                    case 2:
+                        io.cadAluno(s);
+                        break;
+                    case 3:
+                        io.cadTurma(s);
+                        break;
+                    case 4:
+                        s.listarTurmas();
+                        break;
+                    case 0: // Opção de sair
+                        System.out.println("Saindo do sistema...");
+                        break;
+                    default:
+                        System.out.println("Opção inválida. Tente novamente.");
+                        break;
+                }
             }
-
-            // Mostra o menu novamente
-            op = io.menu();
+        } catch (Exception e) {
+            System.err.println("Ocorreu um erro inesperado no sistema: " + e.getMessage());
         }
 
-        // Antes de encerrar, pode listar todos os dados cadastrados (opcional)
-        System.out.println("\nResumo final dos cadastros:");
-        s.listarProfs();
-        System.out.println("\n");
-        s.listarAlunos();
-        System.out.println("\n");
-        s.listarTurmas();
+            // Fecha o scanner
+            io.input.close(); // Garante que o scanner seja fechado, mesmo se ocorrer um erro
 
-        // Fecha o scanner
-        io.input.close();
-
-        // Mensagem de encerramento
-        System.out.println("Sistema encerrado. Até mais!");
-    }
+            // Mensagem de encerramento
+            System.out.println("Sistema encerrado. Até mais!");
+        }
 }

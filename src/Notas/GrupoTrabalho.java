@@ -3,7 +3,6 @@ package Notas;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class GrupoTrabalho {
     private double nota;
     private List<Aluno> alunos;
@@ -13,8 +12,14 @@ public class GrupoTrabalho {
     }
 
     public void adicionarAluno(Aluno aluno) {
+        // Validação do parâmetro 'aluno'
+        if (aluno == null) {
+            throw new IllegalArgumentException("Não é possível adicionar um aluno nulo ao grupo de trabalho.");
+        }
         if (!alunoNoGrupo(aluno.getCpf())) {
             this.alunos.add(aluno);
+        } else {
+            throw new IllegalArgumentException("Aluno com CPF " + aluno.getCpf() + " já está presente neste grupo de trabalho.");
         }
     }
 
@@ -32,6 +37,10 @@ public class GrupoTrabalho {
     }
 
     public void setNota(double nota) {
+        // Validação da nota
+        if (nota < 0) {
+            throw new IllegalArgumentException("A nota do grupo de trabalho não pode ser um valor negativo.");
+        }
         this.nota = nota;
     }
 }

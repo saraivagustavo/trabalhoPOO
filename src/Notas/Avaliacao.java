@@ -7,8 +7,22 @@ public class Avaliacao {
 
     // Construtor da classe Avaliacao
     public Avaliacao(String nome, Data dtAplicacao, double valor) {
+        // Validação do nome
+        if (nome == null) {
+            throw new IllegalArgumentException("O nome da avaliação não pode ser nulo ou vazio.");
+        }
         this.nome = nome;
+
+        // Validação da data de aplicação
+        if (dtAplicacao == null) {
+            throw new IllegalArgumentException("A data de aplicação não pode ser nula.");
+        }
         this.dtAplicacao = dtAplicacao;
+
+        // Validação do valor
+        if (valor <= 0) { // O valor deve ser positivo
+            throw new IllegalArgumentException("O valor da avaliação deve ser maior que zero.");
+        }
         this.valor = valor;
     }
 
