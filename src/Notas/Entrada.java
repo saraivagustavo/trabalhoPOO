@@ -15,7 +15,7 @@ public class Entrada {
 
     /**
      * Construtor da classe Entrada
-     * Se houver um arquivo teste.txt, define que o Scanner vai ler deste arquivo.
+     * Se houver um arquivo input.txt, define que o Scanner vai ler deste arquivo.
      * Se o arquivo não existir, define que o Scanner vai ler da entrada padrão (teclado)
      */
     public Entrada() {
