@@ -21,7 +21,7 @@ O programa permite:
 
 ## 🧱 Estrutura do Projeto
 
-📁 **trabalho2POO**  
+📁 **trabalhoPOO**  
 ├── 📄 `input.txt` — Arquivo opcional com entradas automáticas  
 └── 📁 `src`  
   └── 📁 `Notas`  
