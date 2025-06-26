@@ -15,14 +15,14 @@ O programa permite:
 - Cadastrar professores e alunos
 - Criar turmas com professores, alunos e avaliações
 - Calcular médias dos alunos e da turma
-- Ler dados via teclado ou arquivo (`dados.txt`)
+- Ler dados via teclado ou arquivo (`input.txt`)
 
 ---
 
 ## 🧱 Estrutura do Projeto
 
 📁 **trabalhoPOO**  
-├── 📄 `dados.txt` — Arquivo opcional com entradas automáticas  
+├── 📄 `input.txt` — Arquivo opcional com entradas automáticas  
 └── 📁 `src`  
   └── 📁 `Notas`  
     ├── 📄 `Pessoa.java`  
