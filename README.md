@@ -1,4 +1,4 @@
-# 🎓 Atividade 2 - Programação Orientada a Objetos (POO)
+# 🎓 Trabalho - Programação Orientada a Objetos (POO)
 
 [![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)](https://www.java.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
