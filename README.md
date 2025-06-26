@@ -65,7 +65,7 @@ O programa permite:
 
 ## ℹ️ Detalhes Adicionais
 
-O sistema foi desenvolvido com foco na aplicação dos principais conceitos de Programação Orientada a Objetos em Java, como **herança**, **polimorfismo**, **encapsulamento**, **reescrita**, **sobrecarga** e *ArrayLists**.
+O sistema foi desenvolvido com foco na aplicação dos principais conceitos de Programação Orientada a Objetos em Java, como **herança**, **polimorfismo**, **encapsulamento**, **reescrita**, **sobrecarga** e **ArrayLists**.
 
 A execução do programa ocorre por meio de um **menu interativo** que permite ao usuário realizar as operações de forma prática, como cadastrar dados, visualizar médias ou carregar informações automaticamente a partir de um arquivo `input.txt`.
 
