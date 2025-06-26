@@ -2,7 +2,7 @@ package Notas;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.InputMismatchException; // Mantido por segurança, embora nextLine não lance
+import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -16,64 +16,54 @@ public class Entrada {
 
     /**
      * Construtor da classe Entrada.
-     * Tenta ler de "dados.txt" como a fonte primária de comandos.
-     * Se "dados.txt" não for encontrado, lê do teclado (System.in) para interação.
+     * Tenta ler de "input.txt" para automatizar a entrada de dados do menu.
+     * Se não encontrado, lê do teclado (System.in) para interação manual.
      */
     public Entrada() {
         try {
-            this.input = new Scanner(new FileInputStream("dados.txt"));
-            this.isSystemIn = false; // Indica que está lendo de um arquivo
-            System.out.println("Arquivo 'dados.txt' encontrado. Lendo comandos do arquivo para interação.");
-            System.out.println("\n*********************");
+            this.input = new Scanner(new FileInputStream("input.txt"));
+            this.isSystemIn = false; // Indica que está lendo de um arquivo (input.txt)
+            System.out.println("Lendo entradas de 'input.txt' para automatização do menu.");
         } catch (FileNotFoundException e) {
             this.input = new Scanner(System.in);
             this.isSystemIn = true; // Indica que está lendo do teclado
-            System.out.println("Arquivo 'dados.txt' não encontrado. Lendo comandos do teclado para interação.");
+            System.out.println("Arquivo 'input.txt' não encontrado. Lendo do teclado para interação manual.");
         }
     }
 
     // *******************************************************
-    // *************** MÉTODOS DE LEITURA GERAIS ****************
+    // *************** MÉTODOS DE LEITURA GERAIS (para interação ou input.txt) ****************
     // *******************************************************
 
     /**
-     * Método auxiliar privado para ler a próxima linha bruta do Scanner,
-     * ignorando linhas vazias ou comentários. Lança NoSuchElementException em EOF.
-     * @return A linha lida (não vazia e não comentário).
-     * @throws NoSuchElementException se não houver mais linhas para ler (EOF).
-     */
-    private String lerLinhaInterno() throws NoSuchElementException {
-        String linha;
-        while (true) {
-            linha = this.input.nextLine();
-            if (linha.isEmpty() || linha.trim().startsWith("#")) {
-                continue; // Ignora linhas vazias ou comentários
-            }
-            return linha;
-        }
-    }
-
-    /**
-     * Faz a leitura de uma linha. Comportamento difere para entrada interativa vs. arquivo.
+     * Faz a leitura de uma linha. Comportamento difere para entrada interativa vs. arquivo (input.txt).
      * @param msg Mensagem que será exibida ao usuário (APENAS se isSystemIn for true).
      * @return Uma String contendo a linha lida.
      * @throws IllegalStateException se o fim da entrada for alcançado inesperadamente (EOF).
      */
-    public String lerLinha(String msg) {
-        if (this.isSystemIn) { // Só imprime a mensagem se a entrada for via teclado
+    private String lerLinha(String msg) {
+        if (this.isSystemIn) {
             System.out.print(msg);
         }
         try {
-            return lerLinhaInterno();
+            String linha = this.input.nextLine();
+            while (linha.isEmpty() || linha.trim().startsWith("#")) {
+                if (linha.isEmpty()) {
+                    if (this.isSystemIn) System.out.println("Entrada vazia. Por favor, digite algo.");
+                } else if (linha.trim().startsWith("#")) {
+                    // Linha de comentário, apenas ignora e lê a próxima
+                }
+                if (this.isSystemIn) System.out.print(msg); // Reprompt se for interativo
+                linha = this.input.nextLine();
+            }
+            return linha;
         } catch (NoSuchElementException e) {
-            // Se o EOF for atingido em um arquivo, ou em System.in se o usuário forçar EOF (Ctrl+D/Z)
             throw new IllegalStateException("Fim inesperado da entrada de dados.", e);
         }
-        // InputMismatchException não é lançada por nextLine(), então não precisa de catch aqui.
     }
 
     /**
-     * Faz a leitura de um número inteiro. Comportamento difere para entrada interativa vs. arquivo.
+     * Faz a leitura de um número inteiro. Comportamento difere para entrada interativa vs. arquivo (input.txt).
      * @param msg Mensagem que será exibida ao usuário (APENAS se isSystemIn for true).
      * @return O número inteiro lido.
      * @throws IllegalStateException se o fim da entrada for alcançado inesperadamente (EOF).
@@ -82,9 +72,9 @@ public class Entrada {
     public int lerInteiro(String msg) {
         String linha;
         try {
-            linha = lerLinha(msg); // Usa o método lerLinha principal
+            linha = lerLinha(msg);
         } catch (IllegalStateException e) {
-            throw e; // Repassa o EOF de lerLinha
+            throw e; // Repassa o EOF
         }
 
         try {
@@ -94,14 +84,14 @@ public class Entrada {
                 System.out.println("Formato inválido! Tente novamente.");
                 return lerInteiro(msg); // Tenta novamente (apenas em modo interativo)
             } else {
-                // Em modo arquivo, não repete, lança exceção para ser tratada pelo chamador
-                throw new IllegalArgumentException("Formato numérico inteiro inválido no arquivo: '" + linha + "'", e);
+                // Em input.txt, não repete, lança exceção para ser tratada pelo chamador
+                throw new IllegalArgumentException("Formato numérico inteiro inválido em 'input.txt': '" + linha + "'", e);
             }
         }
     }
 
     /**
-     * Faz a leitura de um double. Comportamento difere para entrada interativa vs. arquivo.
+     * Faz a leitura de um double. Comportamento difere para entrada interativa vs. arquivo (input.txt).
      * @param msg Mensagem que será exibida ao usuário (APENAS se isSystemIn for true).
      * @return O número double lido.
      * @throws IllegalStateException se o fim da entrada for alcançado inesperadamente (EOF).
@@ -110,9 +100,9 @@ public class Entrada {
     public double lerDouble(String msg) {
         String linha;
         try {
-            linha = lerLinha(msg); // Usa o método lerLinha principal
+            linha = lerLinha(msg);
         } catch (IllegalStateException e) {
-            throw e; // Repassa o EOF de lerLinha
+            throw e; // Repassa o EOF
         }
 
         try {
@@ -122,34 +112,105 @@ public class Entrada {
                 System.out.println("Formato inválido! Tente novamente.");
                 return lerDouble(msg); // Tenta novamente (apenas em modo interativo)
             } else {
-                // Em modo arquivo, não repete, lança exceção para ser tratada pelo chamador
-                throw new IllegalArgumentException("Formato numérico double inválido no arquivo: '" + linha + "'", e);
+                // Em input.txt, não repete, lança exceção para ser tratada pelo chamador
+                throw new IllegalArgumentException("Formato numérico double inválido em 'input.txt': '" + linha + "'", e);
             }
         }
     }
 
     // *******************************************************
-    // ************* MÉTODO menu() REESTRUTURADO *************
+    // ******* MÉTODOS DE LEITURA PARA CARREGAMENTO DE ARQUIVO (dados.txt) - Reintroduzidos ********
     // *******************************************************
 
     /**
-     * Lê e retorna a próxima tag/comando do arquivo (dados.txt) ou do teclado.
-     * Não exibe um menu numerado.
-     * @return A String da tag/comando lida (ex: "PROF", "ALU", "TUR", "LISTAR", "FIM").
-     * @throws IllegalStateException se o fim da entrada for alcançado inesperadamente (EOF).
+     * Faz a leitura de uma linha de um Scanner fornecido (para leitura de dados.txt sem prompts).
+     * Ignora linhas em branco ou que começam com '#'.
+     * @param sc O Scanner a ser utilizado para leitura.
+     * @return Uma String contendo a linha lida, ou null se o fim do arquivo for atingido.
      */
-    public String menu() {
-        if (this.isSystemIn) {
-            System.out.println("\n*********************");
-            System.out.println("Digite um comando (PROF, ALU, TUR, LISTAR, FIM):");
-            // Nota: lerLinha já imprime "Comando: " se this.isSystemIn for true
+    public String lerLinhaArquivo(Scanner sc) {
+        while (sc.hasNextLine()) {
+            String linha = sc.nextLine();
+            if (linha.isEmpty() || linha.trim().startsWith("#")) {
+                continue; // Ignora linhas vazias ou comentários
+            }
+            return linha;
         }
-        String comando = lerLinha("Comando: "); // Usa o lerLinha refatorado
-        return comando.trim().toUpperCase(); // Retorna o comando em maiúsculas para facilitar a comparação
+        return null; // Fim do arquivo
+    }
+
+    /**
+     * Faz a leitura de um inteiro de um Scanner fornecido (para leitura de dados.txt sem prompts).
+     * @param sc O Scanner a ser utilizado para leitura.
+     * @return O número inteiro lido, ou null se o fim do arquivo for atingido ou formato inválido.
+     */
+    public Integer lerInteiroArquivo(Scanner sc) {
+        String linha = lerLinhaArquivo(sc);
+        if (linha == null) return null;
+        try {
+            return Integer.parseInt(linha);
+        } catch (NumberFormatException e) {
+            System.err.println("Erro: Formato de número inteiro inválido ao ler do arquivo 'dados.txt': '" + linha + "'");
+            return null;
+        }
+    }
+
+    /**
+     * Faz a leitura de um double de um Scanner fornecido (para leitura de dados.txt sem prompts).
+     * @param sc O Scanner a ser utilizado para leitura.
+     * @return O número double lido, ou null se o fim do arquivo for atingido ou formato inválido.
+     */
+    public Double lerDoubleArquivo(Scanner sc) {
+        String linha = lerLinhaArquivo(sc);
+        if (linha == null) return null;
+        try {
+            return Double.parseDouble(linha);
+        } catch (NumberFormatException e) {
+            System.err.println("Erro: Formato de número double inválido ao ler do arquivo 'dados.txt': '" + linha + "'");
+            return null;
+        }
     }
 
     // *******************************************************
-    // *************** MÉTODOS DE CADASTRO (ajustes para lidar com exceções) *******************
+    // ************* MÉTODO menu() - Revertido para numérico *************
+    // *******************************************************
+
+    /**
+     * Imprime o menu principal, lê a opção escolhida pelo usuário e retorna a opção selecionada.
+     * @return Inteiro contendo a opção escolhida pelo usuário.
+     * @throws IllegalStateException se o fim da entrada for alcançado inesperadamente (EOF).
+     */
+    public int menu() {
+        String msg = "\n*********************\n" +
+                "Escolha uma opção:\n" +
+                "1) Cadastrar professor:\n" +
+                "2) Cadastrar aluno:\n" +
+                "3) Cadastrar turma:\n" +
+                "4) Listar turmas:\n" +
+                "0) Sair\n" +
+                "Opção: "; // Adicionado "Opção: " para prompt claro
+
+        int op = -1;
+        try {
+            op = this.lerInteiro(msg);
+        } catch (IllegalStateException e) {
+            System.out.println("Fim da entrada de dados. O programa encerrará.");
+            return 0;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro de formato na opção do menu em 'input.txt': " + e.getMessage());
+            return -1; // Retorna -1 para tentar novamente no loop do Main
+        }
+
+        while (op < 0 || op > 4) {
+            System.out.println("Opção inválida. Tente novamente: ");
+            op = this.lerInteiro(msg);
+        }
+
+        return op;
+    }
+
+    // *******************************************************
+    // *************** MÉTODOS DE CADASTRO (ajustes para exceções de input.txt) *******************
     // *******************************************************
 
     public void cadProf(Sistema s) {
@@ -163,9 +224,12 @@ public class Entrada {
                 System.out.println("Salário inválido. Deve ser um valor positivo. Tente novamente.");
                 salario = this.lerDouble("Digite o salário do professor: R$");
             }
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler salário do professor: " + e.getMessage());
-            return; // Sai do método se houver erro de leitura no arquivo
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler salário do professor de 'input.txt': " + e.getMessage());
+            return;
+        } catch (IllegalStateException e) {
+            System.err.println("Fim de 'input.txt' inesperado ao ler salário do professor: " + e.getMessage());
+            return;
         }
 
         try {
@@ -203,8 +267,11 @@ public class Entrada {
                     System.out.println("Ano inválido. Deve ser um valor positivo. Tente novamente.");
                 }
             } while (ano <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler ano da disciplina: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler ano da disciplina de 'input.txt': " + e.getMessage());
+            return;
+        } catch (IllegalStateException e) {
+            System.err.println("Fim de 'input.txt' inesperado ao ler ano da disciplina: " + e.getMessage());
             return;
         }
 
@@ -216,8 +283,11 @@ public class Entrada {
                     System.out.println("Semestre inválido. Deve ser 1 ou 2. Tente novamente.");
                 }
             } while (semestre != 1 && semestre != 2);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler semestre da disciplina: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler semestre da disciplina de 'input.txt': " + e.getMessage());
+            return;
+        } catch (IllegalStateException e) {
+            System.err.println("Fim de 'input.txt' inesperado ao ler semestre da disciplina: " + e.getMessage());
             return;
         }
 
@@ -233,7 +303,7 @@ public class Entrada {
         try {
             Aluno[] alunosDaTurma = this.lerAlunos(s);
             if (alunosDaTurma == null || alunosDaTurma.length == 0) {
-                System.err.println("Erro: Nenhuma aluno(s) válido(s) selecionado(s) para a turma. Turma não adicionada.");
+                System.err.println("Erro: Nenhum aluno(s) válido(s) selecionado(s) para a turma. Turma não adicionada.");
                 return;
             }
 
@@ -246,12 +316,14 @@ public class Entrada {
                     }
                 } while (qtdAvaliacoes < 0);
             } catch (IllegalArgumentException e) {
-                System.err.println("Erro ao ler quantidade de avaliações: " + e.getMessage());
+                System.err.println("Erro ao ler quantidade de avaliações de 'input.txt': " + e.getMessage());
+                return;
+            } catch (IllegalStateException e) {
+                System.err.println("Fim de 'input.txt' inesperado ao ler quantidade de avaliações: " + e.getMessage());
                 return;
             }
 
             Avaliacao[] avaliacoesDaTurma = this.lerAvaliacoes(s, alunosDaTurma, qtdAvaliacoes);
-            // Verifica se a quantidade real de avaliações carregadas corresponde à esperada
             int avaliacoesCarregadas = 0;
             if (avaliacoesDaTurma != null) {
                 for (Avaliacao aval : avaliacoesDaTurma) {
@@ -260,7 +332,7 @@ public class Entrada {
                     }
                 }
             }
-            if (avaliacoesCarregadas == 0 && qtdAvaliacoes > 0) { // Se esperava avaliações mas nenhuma foi carregada
+            if (avaliacoesCarregadas == 0 && qtdAvaliacoes > 0) {
                 System.err.println("Erro: Nenhuma avaliação válida foi carregada para a turma. Turma não adicionada.");
                 return;
             }
@@ -272,7 +344,7 @@ public class Entrada {
         } catch (IllegalArgumentException e) {
             System.err.println("Erro ao cadastrar turma: " + e.getMessage());
         } catch (IllegalStateException e) {
-            System.err.println("Erro ao configurar turma (fim de arquivo inesperado ou formato): " + e.getMessage());
+            System.err.println("Erro ao configurar turma (fim de input.txt inesperado ou formato): " + e.getMessage());
         } catch (RuntimeException e){
             System.err.println("Ocorreu um erro inesperado ao configurar a turma: " + e.getMessage());
             e.printStackTrace();
@@ -280,41 +352,38 @@ public class Entrada {
     }
 
     // *******************************************************
-    // ************ MÉTODOS AUXILIARES DE LEITURA (ajustes para lidar com exceções) ************
+    // ************ MÉTODOS AUXILIARES DE LEITURA (ajustes para exceções de input.txt) ************
     // *******************************************************
 
-    public Professor lerProf(Sistema s) { // Usado em cadTurma para encontrar o professor
+    public Professor lerProf(Sistema s) {
         String cpf = this.lerLinha("Digite o CPF do professor: ");
         return s.encontrarProfessor(cpf);
     }
 
-    public Aluno[] lerAlunos(Sistema s) { // Usado em cadTurma para ler alunos da turma
-        s.listarAlunos(); // Lista todos os alunos disponíveis no sistema
+    public Aluno[] lerAlunos(Sistema s) {
+        s.listarAlunos();
 
         int qtd;
         Aluno[] alunosArray = null;
 
-        // Loop para garantir que a quantidade de alunos na disciplina seja válida
         do {
             try {
                 qtd = this.lerInteiro("Digite a quantidade de alunos na disciplina: ");
             } catch (IllegalStateException e) {
-                System.err.println("Fim do arquivo ao ler quantidade de alunos para a disciplina.");
+                System.err.println("Fim de 'input.txt' inesperado ao ler quantidade de alunos para a disciplina.");
                 return null;
-            } catch (IllegalArgumentException e) { // Erro de formato em arquivo
-                System.err.println("Erro ao ler quantidade de alunos para a disciplina: " + e.getMessage());
-                // Em modo arquivo, retorna null, não tenta novamente
+            } catch (IllegalArgumentException e) {
+                System.err.println("Erro ao ler quantidade de alunos para a disciplina de 'input.txt': " + e.getMessage());
                 return null;
             }
 
 
             if (qtd < 0) {
                 System.out.println("Quantidade de alunos inválida. Deve ser maior ou igual a zero. Tente novamente.");
-                // Continua o loop se for interativo, ou sai se for arquivo
-                if (!this.isSystemIn) return null; // Sai para arquivo se entrada inválida
+                if (!this.isSystemIn) return null;
             } else if (qtd > s.getAlunos().size()) {
                 System.out.println("Quantidade de alunos inválida. Máximo permitido: " + s.getAlunos().size() + ". Por favor, tente novamente.");
-                if (!this.isSystemIn) return null; // Sai para arquivo se entrada inválida
+                if (!this.isSystemIn) return null;
             } else {
                 alunosArray = new Aluno[qtd];
                 break;
@@ -326,8 +395,8 @@ public class Entrada {
             try {
                 matricula = this.lerLinha("Digite a matrícula do aluno para a posição " + (i + 1) + ": ");
             } catch (IllegalStateException e) {
-                System.err.println("Fim do arquivo ao ler matrícula de aluno para a turma.");
-                return alunosArray; // Retorna o array parcial
+                System.err.println("Fim de 'input.txt' inesperado ao ler matrícula de aluno para a turma.");
+                return alunosArray;
             }
             Aluno a = s.encontrarAluno(matricula);
 
@@ -343,24 +412,23 @@ public class Entrada {
                     alunosArray[i] = a;
                 } else {
                     System.out.println("Aluno com matrícula '" + matricula + "' já foi adicionado a esta turma. Por favor, digite uma matrícula diferente.");
-                    if (!this.isSystemIn) { // Não repete em arquivo, considera um erro de dados
-                        System.err.println("Erro de dados: Aluno duplicado em lista de turma para matrícula '" + matricula + "'");
-                        // Pode ser uma estratégia diferente aqui, como pular o aluno ou lançar exceção fatal
+                    if (!this.isSystemIn) {
+                        System.err.println("Erro de dados em 'input.txt': Aluno duplicado em lista de turma para matrícula '" + matricula + "'");
                     }
-                    i--; // Repete a posição para entrada interativa ou para tentar pular o erro em arquivo
+                    i--;
                 }
             } else {
                 System.out.println("Aluno com matrícula '" + matricula + "' não encontrado. Por favor, digite uma matrícula válida.");
-                if (!this.isSystemIn) { // Não repete em arquivo, considera um erro de dados
-                    System.err.println("Erro de dados: Aluno não encontrado para matrícula '" + matricula + "'");
+                if (!this.isSystemIn) {
+                    System.err.println("Erro de dados em 'input.txt': Aluno não encontrado para matrícula '" + matricula + "'");
                 }
-                i--; // Repete a posição
+                i--;
             }
         }
         return alunosArray;
     }
 
-    public AlunoProva lerAlunoProva(Sistema s, Aluno a, int nQuestoes) { // Usado em lerProva
+    public AlunoProva lerAlunoProva(Sistema s, Aluno a, int nQuestoes) {
         AlunoProva ap = null;
         try {
             ap = new AlunoProva(a);
@@ -374,31 +442,30 @@ public class Entrada {
                             System.out.println("Nota inválida. A nota deve ser um valor positivo. Tente novamente.");
                         }
                     } while (nota < 0);
-                } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-                    System.err.println("Erro ao ler nota da questão " + (i + 1) + " para " + a.getNome() + ": " + e.getMessage());
-                    // Em modo arquivo, interrompe a leitura das notas para este AlunoProva
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Erro ao ler nota da questão " + (i + 1) + " para " + a.getNome() + " de 'input.txt': " + e.getMessage());
                     throw new RuntimeException("Falha ao ler notas para AlunoProva devido a formato inválido.", e);
                 } catch (IllegalStateException e) {
-                    System.err.println("Fim do arquivo de entrada inesperado ao ler notas da prova para " + a.getNome() + ": " + e.getMessage());
+                    System.err.println("Fim de 'input.txt' inesperado ao ler notas da prova para " + a.getNome() + ": " + e.getMessage());
                     throw new RuntimeException("Falha ao ler notas para AlunoProva devido a EOF.", e);
                 }
                 ap.adicionarNota(nota);
             }
-        } catch (IllegalArgumentException e) { // Erros de validação do construtor AlunoProva ou adicionarNota (nota negativa)
+        } catch (IllegalArgumentException e) {
             System.err.println("Erro ao configurar notas da prova para " + (a != null ? a.getNome() : "aluno desconhecido") + ": " + e.getMessage());
             throw new RuntimeException("Falha ao criar AlunoProva ou adicionar notas: " + e.getMessage(), e);
-        } catch (RuntimeException e) { // Propaga RunTimeException de leitura de notas (formato/EOF)
+        } catch (RuntimeException e) {
             throw e;
         }
         return ap;
     }
 
-    public Prova lerProva(Sistema s, Aluno[] alunos) { // Usado em lerAvaliacoes
+    public Prova lerProva(Sistema s, Aluno[] alunos) {
         String nome;
         try {
             nome = this.lerLinha("Informe o nome desta prova: ");
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler nome da prova."); return null;
+            System.err.println("Fim de 'input.txt' inesperado ao ler nome da prova."); return null;
         }
 
         Data data = null;
@@ -411,17 +478,17 @@ public class Entrada {
                     int ano = this.lerInteiro("Digite o ano da prova: ");
                     data = new Data(dia, mes, ano);
                     dataValida = true;
-                } catch (IllegalArgumentException e) { // Erro de validação do construtor Data
+                } catch (IllegalArgumentException e) {
                     System.out.println("Data inválida: " + e.getMessage());
                     if (this.isSystemIn) System.out.println("Por favor, digite a data novamente.");
-                    else throw e; // Em arquivo, propaga o erro de data inválida
+                    else throw new RuntimeException("Erro de dados em 'input.txt' ao ler data da prova.", e);
                 }
             } while (!dataValida);
-        } catch (IllegalStateException e) { // EOF durante leitura de dia/mes/ano
-            System.err.println("Fim do arquivo ao ler data da prova.");
+        } catch (IllegalStateException e) {
+            System.err.println("Fim de 'input.txt' inesperado ao ler data da prova.");
             return null;
-        } catch (IllegalArgumentException e) { // Propaga erro de formato de data no arquivo
-            System.err.println("Erro ao ler data da prova do arquivo: " + e.getMessage());
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
             return null;
         }
 
@@ -434,11 +501,11 @@ public class Entrada {
                     System.out.println("Valor inválido. Deve ser um número positivo. Tente novamente.");
                 }
             } while (valor <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler valor da prova: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler valor da prova de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler valor da prova.");
+            System.err.println("Fim de 'input.txt' inesperado ao ler valor da prova.");
             return null;
         }
 
@@ -451,11 +518,11 @@ public class Entrada {
                     System.out.println("Número de questões inválido. Deve ser maior que zero. Tente novamente.");
                 }
             } while (nQuestoes <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler número de questões da prova: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler número de questões da prova de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler número de questões da prova.");
+            System.err.println("Fim de 'input.txt' inesperado ao ler número de questões da prova.");
             return null;
         }
 
@@ -466,16 +533,15 @@ public class Entrada {
                 if (ap != null) {
                     p.adicionarAlunoProva(ap);
                 }
-            } catch (RuntimeException e) { // Captura RunTimeException de lerAlunoProva
+            } catch (RuntimeException e) {
                 System.err.println("Erro ao adicionar notas do aluno " + aluno.getNome() + " na prova: " + e.getMessage());
                 System.err.println("Este aluno pode não ter notas registradas para esta prova.");
-                // Não retorna null aqui para Prova, apenas registra o erro e continua com os próximos alunos
             }
         }
         return p;
     }
 
-    public GrupoTrabalho lerGrupoTrabalho(Sistema s) { // Usado em lerTrabalho
+    public GrupoTrabalho lerGrupoTrabalho(Sistema s) {
         GrupoTrabalho grupo = new GrupoTrabalho();
         int qtdAlunosGrupo;
         try {
@@ -485,11 +551,11 @@ public class Entrada {
                     System.out.println("Número de alunos no grupo inválido. Deve ser maior que zero. Tente novamente.");
                 }
             } while (qtdAlunosGrupo <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler quantidade de alunos para o grupo de trabalho: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler quantidade de alunos para o grupo de trabalho de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler quantidade de alunos para o grupo de trabalho.");
+            System.err.println("Fim de 'input.txt' inesperado ao ler quantidade de alunos para o grupo de trabalho.");
             return null;
         }
 
@@ -498,24 +564,23 @@ public class Entrada {
             try {
                 matricula = this.lerLinha("Digite a matrícula do aluno para a posição " + (i + 1) + " do grupo: ");
             } catch (IllegalStateException e) {
-                System.err.println("Fim do arquivo ao ler matrícula de aluno para o grupo."); return null;
+                System.err.println("Fim de 'input.txt' inesperado ao ler matrícula de aluno para o grupo."); return null;
             }
 
             Aluno a = s.encontrarAluno(matricula);
             if (a != null) {
                 try {
                     grupo.adicionarAluno(a);
-                } catch (IllegalArgumentException e) { // Aluno duplicado no grupo
+                } catch (IllegalArgumentException e) {
                     System.err.println("Erro ao adicionar aluno ao grupo: " + e.getMessage());
-                    // Em modo arquivo, pode querer pular este aluno ou invalidar o grupo
-                    i--; // Repete a posição
+                    i--;
                 }
             } else {
                 System.out.println("Aluno com a matrícula '" + matricula + "' não encontrado. Por favor, digite uma matrícula válida.");
-                if (!this.isSystemIn) { // Em arquivo, apenas registra o erro e tenta a próxima
-                    System.err.println("Erro de dados: Aluno não encontrado para matrícula '" + matricula + "' no grupo.");
+                if (!this.isSystemIn) {
+                    System.err.println("Erro de dados em 'input.txt': Aluno não encontrado para matrícula '" + matricula + "' no grupo.");
                 }
-                i--; // Repete a posição
+                i--;
             }
         }
 
@@ -526,26 +591,26 @@ public class Entrada {
                 try {
                     grupo.setNota(nota);
                     break;
-                } catch (IllegalArgumentException e) { // Nota negativa
+                } catch (IllegalArgumentException e) {
                     System.out.println("Erro ao definir nota do grupo: " + e.getMessage());
                 }
             } while (true);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler nota do grupo: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler nota do grupo de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler nota do grupo."); return null;
+            System.err.println("Fim de 'input.txt' inesperado ao ler nota do grupo."); return null;
         }
 
         return grupo;
     }
 
-    public Trabalho lerTrabalho(Sistema s, Aluno[] alunos) { // Usado em lerAvaliacoes
+    public Trabalho lerTrabalho(Sistema s, Aluno[] alunos) {
         String nome;
         try {
             nome = this.lerLinha("Informe o nome deste trabalho: ");
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler nome do trabalho."); return null;
+            System.err.println("Fim de 'input.txt' inesperado ao ler nome do trabalho."); return null;
         }
 
         Data data = null;
@@ -558,17 +623,17 @@ public class Entrada {
                     int ano = this.lerInteiro("Digite o ano do trabalho: ");
                     data = new Data(dia, mes, ano);
                     dataValida = true;
-                } catch (IllegalArgumentException e) { // Erro de validação do construtor Data
+                } catch (IllegalArgumentException e) {
                     System.out.println("Data inválida: " + e.getMessage());
                     if (this.isSystemIn) System.out.println("Por favor, digite a data novamente.");
-                    else throw e; // Em arquivo, propaga o erro de data inválida
+                    else throw new RuntimeException("Erro de dados em 'input.txt' ao ler data do trabalho.", e);
                 }
             } while (!dataValida);
-        } catch (IllegalStateException e) { // EOF durante leitura de dia/mes/ano
-            System.err.println("Fim do arquivo ao ler data do trabalho.");
+        } catch (IllegalStateException e) {
+            System.err.println("Fim de 'input.txt' inesperado ao ler data do trabalho.");
             return null;
-        } catch (IllegalArgumentException e) { // Propaga erro de formato de data no arquivo
-            System.err.println("Erro ao ler data do trabalho do arquivo: " + e.getMessage());
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
             return null;
         }
 
@@ -580,14 +645,13 @@ public class Entrada {
                     System.out.println("Valor inválido. Deve ser um número positivo. Tente novamente.");
                 }
             } while (valor <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler valor do trabalho: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler valor do trabalho de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler valor do trabalho.");
+            System.err.println("Fim de 'input.txt' inesperado ao ler valor do trabalho.");
             return null;
         }
-
 
         int nIntegrantes;
         try {
@@ -597,14 +661,13 @@ public class Entrada {
                     System.out.println("Número de integrantes inválido. Deve ser maior que zero. Tente novamente.");
                 }
             } while (nIntegrantes <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler número de integrantes do trabalho: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler número de integrantes do trabalho de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler número de integrantes do trabalho.");
+            System.err.println("Fim de 'input.txt' inesperado ao ler número de integrantes do trabalho.");
             return null;
         }
-
 
         int nGrupos;
         try {
@@ -614,11 +677,11 @@ public class Entrada {
                     System.out.println("Número de grupos inválido. Deve ser maior que zero. Tente novamente.");
                 }
             } while (nGrupos <= 0);
-        } catch (IllegalArgumentException e) { // Captura erro de formato em arquivo
-            System.err.println("Erro ao ler número de grupos do trabalho: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erro ao ler número de grupos do trabalho de 'input.txt': " + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
-            System.err.println("Fim do arquivo ao ler número de grupos do trabalho.");
+            System.err.println("Fim de 'input.txt' inesperado ao ler número de grupos do trabalho.");
             return null;
         }
 
@@ -630,20 +693,17 @@ public class Entrada {
                 if (grupo != null) {
                     t.adicionarGrupo(grupo);
                 } else {
-                    System.err.println("Grupo de trabalho " + (i + 1) + " não foi configurado devido a erro/fim de arquivo.");
-                    // Se o grupo não pôde ser lido (EOF ou erro de formato), a avaliação estará incompleta.
-                    // Para dados de arquivo, isso é um erro no script, então não repete.
-                    // Apenas registra o erro e continua para o próximo grupo (se houver).
+                    System.err.println("Grupo de trabalho " + (i + 1) + " não foi configurado devido a erro/fim de 'input.txt'.");
                 }
-            } catch (RuntimeException e) { // Captura RunTimeException de lerGrupoTrabalho (formato/EOF)
+            } catch (RuntimeException e) {
                 System.err.println("Erro ao configurar grupo de trabalho " + (i + 1) + ": " + e.getMessage());
-                System.err.println("Este grupo pode não ter sido adicionado. Por favor, verifique os dados no arquivo.");
+                System.err.println("Este grupo pode não ter sido adicionado. Por favor, verifique os dados.");
             }
         }
         return t;
     }
 
-    public Avaliacao[] lerAvaliacoes(Sistema s, Aluno[] alunos, int nAvaliacoes) { // Usado em cadTurma
+    public Avaliacao[] lerAvaliacoes(Sistema s, Aluno[] alunos, int nAvaliacoes) {
         Avaliacao[] avaliacoes = new Avaliacao[nAvaliacoes];
 
         for (int i = 0; i < nAvaliacoes; i++) {
@@ -651,60 +711,61 @@ public class Entrada {
                 System.out.println("\nConfigurando Avaliação " + (i + 1) + " de " + nAvaliacoes + ":");
                 System.out.println("Escolha um tipo de avaliação: 1) Prova 2) Trabalho");
             }
-            String tipoStr;
+            int tipo;
             try {
-                tipoStr = this.lerLinha("Opção: "); // Agora lê a TAG ("PROV" ou "TRAB")
+                tipo = this.lerInteiro("Opção: ");
             } catch (IllegalStateException e) {
-                System.err.println("Fim do arquivo ao ler tipo de avaliação para Avaliação " + (i + 1) + ". Esta avaliação não será configurada.");
-                // Retornar um array parcial; cadTurma deve verificar o tamanho final do array vs. nAvaliacoes
+                System.err.println("Fim de 'input.txt' inesperado ao ler tipo de avaliação para Avaliação " + (i + 1) + ". Esta avaliação não será configurada.");
                 return avaliacoes;
-            }
-
-            // Mapeia a TAG para um inteiro interno para usar a lógica existente
-            int tipo = -1;
-            if (tipoStr.equalsIgnoreCase("PROV")) {
-                tipo = 1;
-            } else if (tipoStr.equalsIgnoreCase("TRAB")) {
-                tipo = 2;
-            } else {
-                System.out.println("Opção inválida. Comando esperado 'PROV' ou 'TRAB', mas recebido: '" + tipoStr + "'");
+            } catch (IllegalArgumentException e) {
+                System.err.println("Erro de formato ao ler tipo de avaliação em 'input.txt' para Avaliação " + (i + 1) + ": " + e.getMessage());
                 if (this.isSystemIn) {
                     System.out.println("Por favor, tente novamente esta avaliação.");
-                    i--; // Repete a posição para entrada interativa
+                    i--;
                 } else {
-                    System.err.println("Erro de dados no arquivo: Tipo de avaliação desconhecido: '" + tipoStr + "' para Avaliação " + (i + 1));
-                    // Em arquivo, um tipo inválido é um erro de script; não repete, talvez invalida a turma
-                    return avaliacoes; // Retorna o que conseguiu ler até agora.
+                    return avaliacoes;
                 }
-                continue; // Continua o loop para re-tentar
+                continue;
+            }
+
+
+            while (tipo < 1 || tipo > 2) {
+                System.out.println("Opção inválida. Digite 1 para Prova ou 2 para Trabalho: ");
+                try {
+                    tipo = this.lerInteiro("Opção: ");
+                } catch (IllegalStateException e) {
+                    System.err.println("Fim de 'input.txt' inesperado ao reler tipo de avaliação. Esta avaliação não será configurada.");
+                    return avaliacoes;
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Erro de formato ao reler tipo de avaliação em 'input.txt': " + e.getMessage());
+                    if (!this.isSystemIn) {
+                        return avaliacoes;
+                    }
+                }
             }
 
             try {
-                if (tipo == 1) { // PROV
+                if (tipo == 1) {
                     avaliacoes[i] = this.lerProva(s, alunos);
-                } else { // TRAB
+                } else {
                     avaliacoes[i] = this.lerTrabalho(s, alunos);
                 }
                 if (avaliacoes[i] == null) {
-                    System.err.println("Avaliação " + (i + 1) + " não foi configurada devido a erro/fim de arquivo/dados incompletos.");
+                    System.err.println("Avaliação " + (i + 1) + " não foi configurada devido a erro/fim de 'input.txt'/dados incompletos.");
                     if (this.isSystemIn) {
                         System.out.println("Por favor, tente novamente esta avaliação.");
-                        i--; // Repete a posição para entrada interativa
+                        i--;
                     } else {
-                        // Em arquivo, se lerProva/lerTrabalho retornarem null, é um erro de dados.
-                        // Podemos quebrar aqui ou tentar continuar. Para um script, é melhor parar.
-                        System.err.println("Erro de dados crítico na Avaliação " + (i+1) + " do tipo '" + tipoStr + "'. Interrompendo leitura de avaliações para esta turma.");
-                        return avaliacoes; // Retorna avaliações lidas até aqui, as restantes ficam null
+                        return avaliacoes;
                     }
                 }
-            } catch (RuntimeException e) { // Captura exceções lançadas por lerProva/lerTrabalho (ex: IllegalArgumentException, IllegalStateException)
+            } catch (RuntimeException e) {
                 System.err.println("Erro ao configurar avaliação " + (i + 1) + ": " + e.getMessage());
                 if (this.isSystemIn) {
                     System.out.println("Por favor, tente novamente esta avaliação.");
                     i--;
                 } else {
-                    System.err.println("Erro de dados crítico em Avaliação " + (i+1) + " do tipo '" + tipoStr + "'. Interrompendo leitura de avaliações para esta turma.");
-                    return avaliacoes; // Retorna avaliações lidas até aqui
+                    return avaliacoes;
                 }
             }
         }
