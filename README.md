@@ -23,26 +23,25 @@ O programa permite:
 
 ## 🧱 Estrutura do Projeto
 
-📁 **trabalhoPOO**
-├── 📄 `input.txt` — Arquivo opcional com entradas automáticas
+📁 **trabalhoPOO** ├── 📄 `input.txt` — Arquivo opcional com entradas automáticas  
 ├── 📄 `dados.txt` — Arquivo para persistência dos dados (criado e lido automaticamente)
-└── 📁 `src`
-    └── 📁 `Notas`
-        ├── 📄 `Pessoa.java`
-        ├── 📄 `Aluno.java`
-        ├── 📄 `Professor.java`
-        ├── 📄 `Data.java`
-        ├── 📄 `Avaliacao.java`
-        ├── 📄 `Prova.java`
-        ├── 📄 `Trabalho.java`
-        ├── 📄 `AlunoProva.java`
-        ├── 📄 `GrupoTrabalho.java`
-        ├── 📄 `Turma.java`
-        ├── 📄 `Sistema.java`
-        ├── 📄 `Entrada.java`
-        ├── 📄 `ICalculavel.java`
-        ├── 📄 `ITextoFormatavel.java`
-        └── 📄 `Main.java`
+└── 📁 `src`  
+  └── 📁 `Notas`  
+    ├── 📄 `Pessoa.java`  
+    ├── 📄 `Aluno.java`  
+    ├── 📄 `Professor.java`  
+    ├── 📄 `Data.java`  
+    ├── 📄 `Avaliacao.java`  
+    ├── 📄 `Prova.java`  
+    ├── 📄 `Trabalho.java`  
+    ├── 📄 `AlunoProva.java`  
+    ├── 📄 `GrupoTrabalho.java`  
+    ├── 📄 `Turma.java`  
+    ├── 📄 `Sistema.java`  
+    ├── 📄 `Entrada.java`  
+    ├── 📄 `ICalculavel.java`
+    ├── 📄 `ITextoFormatavel.java`
+    └── 📄 `Main.java`
 
 ---
 
