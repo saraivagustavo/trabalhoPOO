@@ -41,7 +41,7 @@ O programa permite:
     ├── 📄 `Entrada.java`  
     ├── 📄 `ICalculavel.java`
     ├── 📄 `ITextoFormatavel.java`
-    └── 📄 `Main.java`
+    ├── 📄 `Main.java`
 
 ---
 
